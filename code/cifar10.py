@@ -61,6 +61,7 @@ def model_fn(features, labels, mode, params):
     learning_rate        = params.get('learning_rate', 0.5)
     dropout_rate         = params.get('dropout_rate', 0.5)
     weight_decay         = params.get('weight_decay', 2e-4)
+    optimizer_momentum   = params.get('optimizer_momentum', 0.9)
     
     with tf.variable_scope('model', initializer=tf.glorot_uniform_initializer()):
     
@@ -140,7 +141,7 @@ def model_fn(features, labels, mode, params):
         # 最適化
         if mode == tf.estimator.ModeKeys.TRAIN:
             with tf.variable_scope('optimization'):
-                optimizer = tf.train.RMSPropOptimizer(learning_rate)
+                optimizer = tf.train.MomentumOptimizer(learning_rate, optimizer_momentum)
                 update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
                 with tf.control_dependencies(update_ops):
                     fit = optimizer.minimize(loss, global_step)
