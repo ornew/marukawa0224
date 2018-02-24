@@ -104,11 +104,10 @@ def model_fn(features, labels, mode, params):
 
         # 読み出し層
         with tf.variable_scope('readout_layer'):
-            x = tf.reduce_mean(x, [1, 2], keep_dims=True, name='global_average_pooling')
+            x = tf.reduce_mean(x, [1, 2], name='global_average_pooling')
             x = tf.layers.dropout(x, rate=dropout_rate,
                                   training=is_training, name='dropout')
-            x = tf.layers.conv2d(x, CATEGORY_NUM, 1, name='readout')
-            x = tf.squeeze(x, [1,2], name='squeeze')
+            x = tf.layers.dense(x, CATEGORY_NUM, name='readout')
 
         # 出力
         logits = tf.identity(x, name='logits')
