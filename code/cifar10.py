@@ -163,7 +163,7 @@ def model_fn(features, labels, mode, params):
             tf.summary.image('images', images, max_outputs=6)
             tf.summary.scalar('regularization_loss', regularization_loss, family='losses')
             tf.summary.scalar('cross_entropy', cross_entropy, family='losses')
-            tf.summary.scalar('total_loss', total_loss, family='losses')
+            tf.summary.scalar('total_loss', loss, family='losses')
             tf.summary.scalar('train_accuracy', metrics['accuracy'][1], family='metrics')
 
     return tf.estimator.EstimatorSpec(
