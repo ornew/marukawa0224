@@ -56,16 +56,13 @@ def model_fn(features, labels, mode, params):
     global_step = tf.train.get_or_create_global_step()
     
     # ハイパーパラメータの取得
-    l2_regularizer_scale = params.get('l2_regularizer_scale', 1e-6)
     point_multiplier     = params.get('point_multiplier', 1)
     depth_multiplier     = params.get('depth_multiplier', 1)
     learning_rate        = params.get('learning_rate', 0.5)
     dropout_rate         = params.get('dropout_rate', 0.5)
     weight_decay         = params.get('weight_decay', 2e-4)
     
-    with tf.variable_scope('model',
-        initializer=tf.glorot_uniform_initializer(),
-        regularizer=tf.contrib.layers.l2_regularizer(l2_regularizer_scale)):
+    with tf.variable_scope('model', initializer=tf.glorot_uniform_initializer()):
     
         # 畳み込みのブロック
         def conv_block(x, filters, strides, name=''):
