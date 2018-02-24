@@ -61,6 +61,7 @@ def model_fn(features, labels, mode, params):
     depth_multiplier     = params.get('depth_multiplier', 1)
     learning_rate        = params.get('learning_rate', 0.5)
     dropout_rate         = params.get('dropout_rate', 0.5)
+    weight_decay         = params.get('weight_decay', 2e-4)
     
     with tf.variable_scope('model',
         initializer=tf.glorot_uniform_initializer(),
@@ -136,8 +137,8 @@ def model_fn(features, labels, mode, params):
         with tf.variable_scope('losses'):
             cross_entropy = tf.losses.softmax_cross_entropy(
                 logits=logits, onehot_labels=labels)
-            regularization_loss = tf.losses.get_regularization_loss()
-            total_loss = tf.losses.get_total_loss(name='total')
+            loss = cross_entropy + weight_decay * tf.add_n(
+                [tf.nn.l2_loss(v) for v in tf.trainable_variables()])
 
         # 最適化
         if mode == tf.estimator.ModeKeys.TRAIN:
@@ -145,7 +146,7 @@ def model_fn(features, labels, mode, params):
                 optimizer = tf.train.RMSPropOptimizer(learning_rate)
                 update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
                 with tf.control_dependencies(update_ops):
-                    fit = optimizer.minimize(total_loss, global_step)
+                    fit = optimizer.minimize(loss, global_step)
         else:
             fit = None
 
@@ -168,6 +169,6 @@ def model_fn(features, labels, mode, params):
     return tf.estimator.EstimatorSpec(
         mode=mode,
         predictions=predictions,
-        loss=total_loss,
+        loss=loss,
         train_op=fit,
         eval_metric_ops=metrics)
